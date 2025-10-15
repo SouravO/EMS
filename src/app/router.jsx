@@ -4,7 +4,14 @@ import Employees from "@/pages/Employees";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
 import React, { useState } from "react";
-import { BrowserRouter, Router, Routes, Route, Link } from "react-router-dom";
+import {
+  BrowserRouter,
+  Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+} from "react-router-dom";
 
 const AppRouter = () => {
   const [user, setUser] = useState(null);
@@ -19,10 +26,14 @@ const AppRouter = () => {
     console.log("User logged in");
     setUser({ name: "Admin", email });
   };
+  const ProtectedRoute = ({ children }) => {
+    if (!user) return <Navigate to="/login" replace />;
+    return children;
+  };
   return (
     <BrowserRouter>
-      <nav className="bg-gray-800 text-white p-4 flex gap-4 justify-between">
-        <div>
+      <nav className="bg-gray-800 text-white p-4 flex  justify-between">
+        <div className="space-x-4">
           <Link to="/">Dashboard</Link>
           <Link to="/employees">Employees</Link>
           <Link to="/login">Login</Link>
@@ -37,9 +48,23 @@ const AppRouter = () => {
       </nav>
 
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/employees" element={<Employees />} />
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute>
+              <Employees />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
